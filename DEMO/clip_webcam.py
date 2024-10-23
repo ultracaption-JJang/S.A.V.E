@@ -28,7 +28,7 @@ logging.basicConfig(
     level=logging.INFO,  # 로그 레벨 설정
     format='%(message)s',  # 로그 출력 형식
     handlers=[
-        logging.FileHandler("./log/app_{current_time}.log"),  # 로그를 파일로 저장 (파일명: app.log)
+        logging.FileHandler(f"./log/app_{current_time}.log",encoding="utf-8"),  # 로그를 파일로 저장 (파일명: app.log)
         logging.StreamHandler()  # 콘솔에도 출력
     ]
 )
