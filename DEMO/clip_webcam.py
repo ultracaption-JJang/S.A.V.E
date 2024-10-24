@@ -6,15 +6,10 @@ import torch
 from torchvision import transforms
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel, GPT2Tokenizer, GPT2LMHeadModel
-from clipcap import ClipCaptionModel
-import clip
-from gtts import gTTS
-
 import requests
+
 from datetime import datetime
 import logging
-
-from utils import speak, clip_load, load_image, extract_image_features, generate_text, log_separator
 # # CLIP 모델 및 프로세서 로드
 # clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
 # clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
@@ -40,6 +35,38 @@ logging.basicConfig(
 
 # 로거 가져오기
 logger = logging.getLogger(__name__)
+
+# 구분선 함수
+def log_separator():
+    logger.info("-" * 50)
+
+def clip_load():
+    # CLIP 모델 및 프로세서 로드
+    model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
+    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
+    return model, processor
+
+# 이미지 로드 및 전처리
+def load_image(image_path):
+    # 이미지 로드 : 원하는 이미지로 바꿀 수 있어요
+    # url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    # image = Image.open(requests.get(url, stream=True).raw)
+    image = Image.open(image_path)
+    return image
+
+# 이미지에서 특징 추출
+def extract_image_features(image_path):
+    start = time.time()
+    clip_model, clip_processor = clip_load()
+    image = load_image(image_path)
+    inputs = clip_processor(images=image, return_tensors="pt")
+
+    with torch.no_grad():
+        features = clip_model.get_image_features(**inputs)
+    end = time.time()
+    process_time = end - start
+    logger.info(f"사진의 임베딩을 구하는데 걸린 시간 : {process_time:.4f}초")
+    return features
 
 
 # 프레임 저장 폴더
@@ -97,10 +124,7 @@ if start_capture:
                 last_saved_time = time.time()
 
                 # 방금 저장된 이미지에 대한 feature 추출
-                clipcap_model, feature = extract_image_features(filename, logger)
-                result = generate_text(clipcap_model, feature)
-
-                logger.info(f"결괏값 : {result}")
+                feature = extract_image_features(filename)
 
         else:  # 5프레임 간격으로 저장
             if frame_count % 5 == 0:
@@ -114,11 +138,8 @@ if start_capture:
                 logger.info(f"사진 저장에 걸린 시간: {frame_save_time}")
 
                 # 방금 저장된 이미지에 대한 feature 추출
-                clipcap_model, feature = extract_image_features(filename, logger)
-                result = generate_text(clipcap_model, feature)
+                feature = extract_image_features(filename)
 
-                logger.info(f"결괏값 : {result}")
-                
             frame_count += 1
 
         
@@ -130,12 +151,11 @@ if start_capture:
         if stop_capture:
             st.write("카메라 프로세스가 종료되었습니다.")
             break
-    
 
         turn_end = time.time()
         turn_time = turn_end - turn_start
         logger.info(f"{frame_count-1}번째 턴 총 실행시간: {turn_time}")
-        log_separator(logger)
+        log_separator()
 
     cap.release()  # 카메라 해제
     cv2.destroyAllWindows()

@@ -1,7 +1,5 @@
 # assets
 /data/
-*.pt
-*.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
