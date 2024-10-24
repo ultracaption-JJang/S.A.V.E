@@ -32,7 +32,7 @@ def clip_load():
     # CLIP 모델 및 프로세서 로드
     # load clip
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    clip_model, preprocess = clip.load("ViT-B/32", device=device, jit=False)
+    clip_model, preprocess = clip.load("ViT-B/32", device=device, jit=False) # ViT-B/32 (Vision Transformer, Base model, patch size 32): 약 149M 파라미터
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
     prefix_length = 10
     return clip_model, preprocess, tokenizer, prefix_length
