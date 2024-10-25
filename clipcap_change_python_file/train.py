@@ -267,14 +267,26 @@ def save_config(args: argparse.Namespace):
         json.dump(config, outfile)
 
 # load pretrained model
-def load_pretrained_model(model, pretrained_path):
-    if os.path.isfile(pretrained_path):
-        print(f"Loading pre-trained model from {pretrained_path}")
-        model.load_state_dict(torch.load(pretrained_path, map_location=torch.device('cuda' if torch.cuda.is_available() else 'cpu')))
-        print("Model loaded successfully.")
+
+def load_pretrained_model(config_path: str, epoch_or_latest: Union[str, int] = '_latest'):
+    with open(config_path) as f:
+        config = json.load(f)
+    parser = argparse.ArgumentParser()
+    parser.set_defaults(**config)
+    args = parser.parse_args()
+    if type(epoch_or_latest) is int:
+        epoch_or_latest = f"-{epoch_or_latest:03d}"
+    model_path = os.path.join(args.out_dir, f"{args.prefix}{epoch_or_latest}.pt")
+    if args.only_prefix:
+        model = ClipCaptionPrefix(args.prefix_length)
     else:
-        print(f"Pre-trained model file {pretrained_path} not found.")
-    return model
+        model = ClipCaptionModel(args.prefix_length)
+    if os.path.isfile(model_path):
+        print(f"loading model from {model_path}")
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    else:
+        print(f"{model_path} is not exist")
+    return model, parser
 
 
 
@@ -300,13 +312,20 @@ def load_model(config_path: str, epoch_or_latest: Union[str, int] = '_latest'):
 
 
 def train(dataset: ClipCocoDataset, model: ClipCaptionModel, args,
-          lr: float = 2e-5, warmup_steps: int = 5000, output_dir: str = ".", output_prefix: str = ""):
+          lr: float = 2e-5, warmup_steps: int = 5000, output_dir: str = ".", output_prefix: str = "",
+           pretrained_model_path: str = None):
 
-    device = torch.device('cuda:0')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu') # mps, cpu 추가
     batch_size = args.bs
     epochs = args.epochs
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+        
+    # Pretrained model을 로드하는 부분
+    if pretrained_model_path and os.path.isfile(pretrained_model_path):
+        print(f"Loading pretrained model from {pretrained_model_path}")
+        model.load_state_dict(torch.load(pretrained_model_path, map_location=device))
+    
     model = model.to(device)
     model.train()
     optimizer = AdamW(model.parameters(), lr=lr)
@@ -350,7 +369,7 @@ def main():
     parser.add_argument('--data', default='./data/coco/oscar_split_train.pkl')
     parser.add_argument('--out_dir', default='./checkpoints')
     parser.add_argument('--prefix', default='coco_prefix', help='prefix for saved filenames')
-    parser.add_argument('--pretrained_model', default=None, help="Path to the pretrained model")  # Pretrained model argument added
+    parser.add_argument('--pretrained_model', default=None, help="Path to the pretrained model")  # Pretrained model 인자 추가
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--save_every', type=int, default=1)
     parser.add_argument('--prefix_length', type=int, default=10)
@@ -375,7 +394,7 @@ def main():
                                   num_layers=args.num_layers, mapping_type=args.mapping_type)
         print("Train both prefix and GPT")
         sys.stdout.flush()
-    train(dataset, model, args, output_dir=args.out_dir, output_prefix=args.prefix)
+    train(dataset, model, args, output_dir=args.out_dir, output_prefix=args.prefix, pretrained_model_path=args.pretrained_model)
 
 
 if __name__ == '__main__':
