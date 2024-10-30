@@ -9,8 +9,10 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.core.window import Window
 from kivy.graphics import Rectangle
 from kivy.core.audio import SoundLoader
+from kivy.graphics.texture import Texture
 from kivy.clock import Clock  # for scheduling
 from kivymd.uix.spinner import MDSpinner
+import cv2
 
 import os
 import time
@@ -49,24 +51,11 @@ ScreenManager:
         orientation: 'vertical'
         padding: 10
         spacing: 20
-        canvas.before:
-            Rectangle:
-                source: '/Users/macbook/Downloads/16.png'  # 배경 이미지 경로
-                size: self.size
-                pos: self.pos
 
         Image:
-            source: '/Users/macbook/Downloads/12.png'
-            size_hint: (1, 0.15)
-            allow_stretch: True
-
-        BoxLayout:
+            id: cam_display
             size_hint: (1, 0.5)
-            Camera:
-                id: cam_display
-                resolution: (640, 480)
-                play: True
-                allow_stretch: True
+            allow_stretch: True
 
         MDTextField:
             id: caption_text
@@ -97,6 +86,7 @@ class MyApp(MDApp):
     sound = None
     is_playing = False  # 상태 플래그 추가
     spinner = None  # 로딩 스피너를 위한 변수 추가
+    capture = None  # OpenCV VideoCapture 객체
 
     def build(self):
         # kv 파일 로드
@@ -105,19 +95,25 @@ class MyApp(MDApp):
     def go_to_second_screen(self):
         # 첫 번째 화면에서 두 번째 화면으로 이동
         self.root.current = 'second'
+        self.capture = cv2.VideoCapture(0)  # OpenCV 카메라 시작
+        Clock.schedule_interval(self.update_camera, 1.0 / 30.0)  # 30 FPS로 업데이트
 
-        # 두 번째 화면으로 이동할 때 카메라 자동 실행
-        second_screen = self.root.get_screen('second')
-        camera = second_screen.ids.cam_display
-        if camera:
-            camera.play = True  # 카메라 실행
-    
+    def update_camera(self, dt):
+        # OpenCV에서 프레임을 읽고 Kivy 텍스처로 변환하여 화면에 표시
+        ret, frame = self.capture.read()
+        if ret:
+            # OpenCV BGR 이미지를 Kivy가 인식할 수 있도록 RGB로 변환
+            frame = cv2.flip(frame, 1)
+            buf = cv2.flip(frame, 1).tobytes()
+            texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+            texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+            texture.flip_vertical()
+            self.root.get_screen('second').ids.cam_display.texture = texture
+
     def on_stop(self):
         # 앱 종료 시 카메라 해제
-        second_screen = self.root.get_screen('second')
-        camera = second_screen.ids.cam_display
-        if camera:
-            camera.play = False  # 카메라 정지
+        if self.capture:
+            self.capture.release()
 
     def capture_and_generate_caption(self):
         # 로딩 스피너 생성 및 추가
