@@ -18,6 +18,8 @@ import numpy as np
 import os
 import time
 from collections import defaultdict
+from gtts import gTTS  # Import gTTS for text-to-speech
+from io import BytesIO
 
 Window.size = (296, 536)  # 앱 창 크기 설정
 
@@ -188,8 +190,12 @@ class MyApp(MDApp):
                             caption_field.text = caption
                             print(caption)
 
-                            sound = response.json().get("mp3", "")
-                            print(sound)
+                            # Generate audio with gTTS and load into the app
+                            tts = gTTS(text=caption, lang='en')
+                            audio_file = f"{timestr}_audio.mp3"
+                            tts.save(audio_file)
+                            self.sound = SoundLoader.load(audio_file)
+                            print(f"Audio saved at {audio_file}")
 
                         else:
                             print("Failed to get caption from server:", response.text)
@@ -202,9 +208,6 @@ class MyApp(MDApp):
             self.spinner = None
 
     def play_sound(self):
-        if not self.sound:
-            self.sound = SoundLoader.load('/Users/macbook/Downloads/audio_feedback.mp3')
-        
         if self.sound:
             if not self.is_playing:
                 self.sound.play()
