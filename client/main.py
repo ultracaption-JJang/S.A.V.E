@@ -13,9 +13,13 @@ from kivy.graphics.texture import Texture
 from kivy.clock import Clock  # for scheduling
 from kivymd.uix.spinner import MDSpinner
 import cv2
+from ultralytics import YOLO
+import numpy as np
+
 
 import os
 import time
+from collections import defaultdict
 
 Window.size = (296, 536)  # 앱 창 크기 설정
 
@@ -96,16 +100,65 @@ class MyApp(MDApp):
         # 첫 번째 화면에서 두 번째 화면으로 이동
         self.root.current = 'second'
         self.capture = cv2.VideoCapture(0)  # OpenCV 카메라 시작
-        Clock.schedule_interval(self.update_camera, 1.0 / 30.0)  # 30 FPS로 업데이트
+        memory = defaultdict(lambda: []) # 이전에 tracking 하고 있던 객체를 기억
+        Clock.schedule_interval(self.update_camera(memory), 1.0 / 30.0)  # 30 FPS로 업데이트
 
-    def update_camera(self, dt):
+    def update_camera(self, memory):
         # OpenCV에서 프레임을 읽고 Kivy 텍스처로 변환하여 화면에 표시
         ret, frame = self.capture.read()
+        track_history = defaultdict(lambda: [])
         if ret:
-            # OpenCV BGR 이미지를 Kivy가 인식할 수 있도록 RGB로 변환
-            frame = cv2.flip(frame, 1)
-            buf = cv2.flip(frame, 1).tobytes()
-            texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+            model = YOLO("yolo11n.pt")
+
+            # Run YOLO11 tracking on the frame, persisting tracks between frames
+            results = model.track(frame, persist=True)
+            # Get the boxes and track IDs
+            if results[0].boxes.id is not None:
+                boxes = results[0].boxes.xywh.cpu()
+                track_ids = results[0].boxes.id.int().cpu().tolist()
+            else:
+                boxes = []
+                track_ids = []
+            # Visualize the results on the frame
+            annotated_frame = results[0].plot()
+            
+            # track_ids가 target일 경우 캡셔닝 생성
+            # 위험 요소 목록 생성
+            target = [0]
+            new_detections = list(set(track_ids) & set(target))  # track_ids와 target 교집합
+
+            # 이전 프레임에 없었던 새로운 객체 확인
+            new_objects = [track_id for track_id in new_detections if track_id not in memory['previous_track_ids']]
+
+            if new_objects:
+                # warning_list 생성 및 캡셔닝 생성
+                warning_list = new_objects
+                self.capture_and_generate_caption()  # 캡셔닝 생성
+
+            # 현재 track_ids를 memory에 저장하여 다음 프레임에서 사용할 수 있도록 설정
+            memory['previous_track_ids'] = track_ids
+
+            # Plot the tracks
+            for box, track_id in zip(boxes, track_ids):
+                x, y, w, h = box
+                track = track_history[track_id]
+                track.append((float(x), float(y)))  # x, y center point
+                if len(track) > 30:  # retain 90 tracks for 90 frames
+                    track.pop(0)
+
+                # Draw the tracking lines
+                points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
+                cv2.polylines(
+                    annotated_frame,
+                    [points],
+                    isClosed=False,
+                    color=(230, 230, 230),
+                    thickness=10,
+                )
+
+            # Kivy 텍스처로 변환하여 cam_display에 표시
+            buf = annotated_frame.tobytes()
+            texture = Texture.create(size=(annotated_frame.shape[1], annotated_frame.shape[0]), colorfmt='bgr')
             texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
             texture.flip_vertical()
             self.root.get_screen('second').ids.cam_display.texture = texture
