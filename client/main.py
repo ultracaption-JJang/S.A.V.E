@@ -12,6 +12,7 @@ from kivy.core.audio import SoundLoader
 from kivy.graphics.texture import Texture
 from kivy.clock import Clock  # for scheduling
 from kivymd.uix.spinner import MDSpinner
+from kivy.core.text import LabelBase
 import cv2
 from ultralytics import YOLO
 import numpy as np
@@ -19,6 +20,9 @@ import os
 import time
 from collections import defaultdict
 from gtts import gTTS  # Import gTTS for text-to-speech
+
+# Register the custom font
+LabelBase.register(name="NanumGothic", fn_regular="/Users/macbook/Downloads/NanumGothic.ttf")
 
 Window.size = (296, 536)  # 앱 창 크기 설정
 
@@ -45,6 +49,7 @@ ScreenManager:
 
         MDRectangleFlatButton:
             text: "Start"
+            font_name: "NanumGothic"
             pos_hint: {"center_x": 0.5, "center_y": 0.4}
             on_release: app.go_to_second_screen()
 
@@ -63,12 +68,14 @@ ScreenManager:
         MDTextField:
             id: caption_text
             hint_text: "Generated Caption"
+            font_name: "NanumGothic"
             size_hint_x: 0.8
             pos_hint: {"center_x": 0.5}
             readonly: True
 
         MDRectangleFlatButton:
             text: "Generate Caption"
+            font_name: "NanumGothic"
             pos_hint: {"center_x": 0.5}
             on_release: app.capture_and_generate_caption()
 """
@@ -184,7 +191,7 @@ class MyApp(MDApp):
                             print("Generated caption:", caption)
 
                             # Generate audio with gTTS and load it for immediate playback
-                            tts = gTTS(text=caption, lang='ko')
+                            tts = gTTS(text=caption, lang='en')
                             audio_file = f"{timestr}_audio.mp3"
                             tts.save(audio_file)
                             self.sound = SoundLoader.load(audio_file)
