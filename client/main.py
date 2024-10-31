@@ -19,7 +19,6 @@ import os
 import time
 from collections import defaultdict
 from gtts import gTTS  # Import gTTS for text-to-speech
-from io import BytesIO
 
 Window.size = (296, 536)  # 앱 창 크기 설정
 
@@ -72,12 +71,6 @@ ScreenManager:
             text: "Generate Caption"
             pos_hint: {"center_x": 0.5}
             on_release: app.capture_and_generate_caption()
-
-        MDRectangleFlatButton:
-            id: sound_btn
-            text: "Play Sound"
-            pos_hint: {"center_x": 0.5}
-            on_release: app.play_sound()
 """
 
 class FirstScreen(Screen):
@@ -188,17 +181,22 @@ class MyApp(MDApp):
                             caption = response.json().get("caption", "")
                             caption_field = second_screen.ids.caption_text
                             caption_field.text = caption
-                            print(caption)
+                            print("Generated caption:", caption)
 
-                            # Generate audio with gTTS and load into the app
-                            tts = gTTS(text=caption, lang='en')
+                            # Generate audio with gTTS and load it for immediate playback
+                            tts = gTTS(text=caption, lang='ko')
                             audio_file = f"{timestr}_audio.mp3"
                             tts.save(audio_file)
                             self.sound = SoundLoader.load(audio_file)
-                            print(f"Audio saved at {audio_file}")
+                            print(f"Audio saved and loaded from {audio_file}")
 
-                        else:
-                            print("Failed to get caption from server:", response.text)
+                            # Automatically play the generated sound if successfully loaded
+                            if self.sound:
+                                self.sound.play()
+                                self.is_playing = True
+                                second_screen.ids.sound_btn.text = "Pause Sound"
+                            else:
+                                print("Error: Sound failed to load")
             
             except Exception as e:
                 print("Error uploading image:", e)
@@ -218,6 +216,6 @@ class MyApp(MDApp):
                 self.is_playing = False
                 self.root.get_screen('second').ids.sound_btn.text = "Play Sound"
         else:
-            print("Failed to load sound file")
+            print("No sound loaded to play")
 
 MyApp().run()
