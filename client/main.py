@@ -22,7 +22,7 @@ from collections import defaultdict
 from gtts import gTTS  # Import gTTS for text-to-speech
 
 # Register the custom font
-LabelBase.register(name="NanumGothic", fn_regular="/Users/macbook/Downloads/NanumGothic.ttf")
+LabelBase.register(name="NanumGothic", fn_regular="../assets/NanumGothic.ttf")
 
 Window.size = (296, 536)  # 앱 창 크기 설정
 
@@ -38,12 +38,12 @@ ScreenManager:
         orientation: 'vertical'
         canvas.before:
             Rectangle:
-                source: '/Users/macbook/Downloads/16.png'
+                source: '../assets/16.png'
                 size: self.size
                 pos: self.pos
 
         Image:
-            source: "/Users/macbook/Downloads/12.png"
+            source: "../assets/12.png"
             pos_hint: {"center_x": 0.5, "center_y": 0.7}
             size_hint: (0.8, 0.8)
 
@@ -105,7 +105,7 @@ class MyApp(MDApp):
         ret, frame = self.capture.read()
         track_history = defaultdict(lambda: [])
         if ret:
-            model = YOLO("/Users/macbook/save/S.A.V.E/client/yolo11n.pt")
+            model = YOLO("./checkpoints/yolo11n.pt")
             results = model.track(frame, persist=True)
 
             if results[0].boxes.id is not None:
@@ -172,7 +172,10 @@ class MyApp(MDApp):
         
         if camera:
             timestr = time.strftime("%Y%m%d_%H%M%S")
-            file_path = f"IMG_{timestr}.png"
+            # frames 폴더가 없으면 생성
+            os.makedirs("frames", exist_ok=True)
+            # file_path를 frames 폴더 안에 저장되도록 설정
+            file_path = f"./frames/IMG_{timestr}.png"
             camera.export_to_png(file_path)
             print(f"Image captured and saved at {file_path}")
             
@@ -190,9 +193,13 @@ class MyApp(MDApp):
                             caption_field.text = caption
                             print("Generated caption:", caption)
 
-                            # Generate audio with gTTS and load it for immediate playback
+                            # Generate audio with gTTS and load it for immediate playback                            
                             tts = gTTS(text=caption, lang='en')
-                            audio_file = f"{timestr}_audio.mp3"
+
+                            # frames 폴더가 없으면 생성
+                            os.makedirs("voices", exist_ok=True)
+
+                            audio_file = f"./voices/{timestr}_audio.mp3"
                             tts.save(audio_file)
                             self.sound = SoundLoader.load(audio_file)
                             print(f"Audio saved and loaded from {audio_file}")
