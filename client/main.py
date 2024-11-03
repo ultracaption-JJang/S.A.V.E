@@ -22,7 +22,7 @@ from collections import defaultdict
 from gtts import gTTS  # Import gTTS for text-to-speech
 
 # Register the custom font
-LabelBase.register(name="NanumGothic", fn_regular="../assets/NanumGothic.ttf")
+LabelBase.register(name="NanumGothic", fn_regular="./assets/NanumGothic.ttf")
 
 Window.size = (296, 536)  # 앱 창 크기 설정
 
@@ -38,12 +38,12 @@ ScreenManager:
         orientation: 'vertical'
         canvas.before:
             Rectangle:
-                source: '../assets/16.png'
+                source: './assets/background.png'
                 size: self.size
                 pos: self.pos
 
         Image:
-            source: "../assets/12.png"
+            source: "./assets/logo.png"
             pos_hint: {"center_x": 0.5, "center_y": 0.7}
             size_hint: (0.8, 0.8)
 
