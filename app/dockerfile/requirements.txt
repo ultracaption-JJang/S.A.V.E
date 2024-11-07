@@ -1,0 +1,15 @@
+transformers==4.16.0
+tqdm
+regex
+ftfy
+ultralytics
+opencv-python-headless
+pillow
+sqlalchemy
+python-dotenv
+pydantic-settings
+psycopg2
+clip @ git+https://github.com/openai/CLIP@main
+clipcap @ file:///app/clipcap_dir
+
+
