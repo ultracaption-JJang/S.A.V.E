@@ -21,8 +21,29 @@ import time
 from collections import defaultdict
 from gtts import gTTS  # Import gTTS for text-to-speech
 
+from datetime import datetime
+import logging
+
+if not os.path.exists("./log"):
+    os.makedirs("./log")
+
+current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+# 로거 설정
+logging.basicConfig(
+    level=logging.INFO,  # 로그 레벨 설정
+    format='%(message)s',  # 로그 출력 형식
+    handlers=[
+        logging.FileHandler(f"./log/app_{current_time}.log",encoding="utf-8"),  # 로그를 파일로 저장 (파일명: app.log)
+        logging.StreamHandler()  # 콘솔에도 출력
+    ]
+)
+
+# 로거 가져오기
+logger = logging.getLogger(__name__)
+
 # Register the custom font
-LabelBase.register(name="NanumGothic", fn_regular="/Users/macbook/Downloads/NanumGothic.ttf")
+LabelBase.register(name="NanumGothic", fn_regular="./assets/NanumGothic.ttf")
 
 Window.size = (296, 536)  # 앱 창 크기 설정
 
@@ -38,12 +59,12 @@ ScreenManager:
         orientation: 'vertical'
         canvas.before:
             Rectangle:
-                source: '/Users/macbook/Downloads/16.png'
+                source: './assets/background.png'
                 size: self.size
                 pos: self.pos
 
         Image:
-            source: "/Users/macbook/Downloads/12.png"
+            source: "./assets/logo.png"
             pos_hint: {"center_x": 0.5, "center_y": 0.7}
             size_hint: (0.8, 0.8)
 
@@ -105,9 +126,12 @@ class MyApp(MDApp):
         ret, frame = self.capture.read()
         track_history = defaultdict(lambda: [])
         if ret:
-            model = YOLO("/Users/macbook/save/S.A.V.E/client/yolo11n.pt")
+            model = YOLO("./checkpoints/yolo11n.pt")
+            start = time.time()
             results = model.track(frame, persist=True)
-
+            end = time.time()
+            logger.info(f"프레임 하나당 YOLO inference에 걸린 시간: {end - start}초")
+            
             if results[0].boxes.id is not None:
                 boxes = results[0].boxes.xywh.cpu()
                 track_ids = results[0].boxes.id.int().cpu().tolist()
@@ -172,27 +196,38 @@ class MyApp(MDApp):
         
         if camera:
             timestr = time.strftime("%Y%m%d_%H%M%S")
-            file_path = f"IMG_{timestr}.png"
+            # frames 폴더가 없으면 생성
+            os.makedirs("frames", exist_ok=True)
+            # file_path를 frames 폴더 안에 저장되도록 설정
+            file_path = f"./frames/IMG_{timestr}.png"
             camera.export_to_png(file_path)
             print(f"Image captured and saved at {file_path}")
             
             try:
                 async with httpx.AsyncClient() as client:
                     with open(file_path, "rb") as image_file:
+                        call_api = time.time() # api 요청
                         response = await client.post(
                             "https://ce4df9d2-7107-4d58-98f3-196be07fe3c2.mock.pstmn.io/generate_caption",
                             files={"file": image_file}
                         )
                         
                         if response.status_code == 200:
+                            return_api = time.time() # api 응답
+                            logger.info(f"clipcap inference 응답에 걸린 시간: {return_api - call_api}초")
+                            logger.info("-" * 50)
                             caption = response.json().get("caption", "")
                             caption_field = second_screen.ids.caption_text
                             caption_field.text = caption
                             print("Generated caption:", caption)
 
-                            # Generate audio with gTTS and load it for immediate playback
+                            # Generate audio with gTTS and load it for immediate playback                            
                             tts = gTTS(text=caption, lang='en')
-                            audio_file = f"{timestr}_audio.mp3"
+
+                            # frames 폴더가 없으면 생성
+                            os.makedirs("voices", exist_ok=True)
+
+                            audio_file = f"./voices/{timestr}_audio.mp3"
                             tts.save(audio_file)
                             self.sound = SoundLoader.load(audio_file)
                             print(f"Audio saved and loaded from {audio_file}")
