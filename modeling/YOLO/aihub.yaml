@@ -1,0 +1,29 @@
+train: /Users/psjj/Downloads/aihub_dataset/yolo_split/train  
+val: /Users/psjj/Downloads/aihub_dataset/yolo_split/val      
+
+nc: 24
+names:
+  0: bench
+  1: car
+  2: potted_plant
+  3: fire_hydrant
+  4: movable_signage
+  5: motorcycle
+  6: stroller
+  7: table
+  8: bus
+  9: bicycle
+  10: wheelchair
+  11: traffic_sign
+  12: barricade
+  13: carrier
+  14: parking_meter
+  15: kiosk
+  16: tree_trunk
+  17: person
+  18: pole
+  19: stop
+  20: chair
+  21: traffic_light
+  22: truck
+  23: bollard
