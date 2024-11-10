@@ -1,5 +1,92 @@
-# S.A.V.E
-실시간 이미지 캡셔닝을 활용한 시각장애인 음성 안내 서비스
+<div align="center">
+  <br>
+  <picture>
+    <source srcset="./assets/readme_logo.png" media="(prefers-color-scheme: dark)">
+    <img width="300" src="./assets/readme_logo.png">
+  </picture>
+  
+  <h2>보이지 않는 세상, 당신의 눈이 되어드리겠습니다.</h2></hr>
+
+</div>
+<br>
+
+## 프로젝트 설명
+
+<strong>S.A.V.E</strong>는 👀눈앞의 상황을 🗣️음성으로 설명해주는 서비스입니다.   
+사용자 앞에 나타나는 다양한 객체에 대해 탐지하고, 프레임에 새로운 객체가 탐지되면 상황을 음성으로 설명해줍니다.
+
+<div align="center">
+<img width="24%" src="./assets/example1.png">
+<img width="24%" src="/assets/example2.png">
+<img width="24%" src="/assets/example3.png">
+<img width="24%" src="/assets/example4.png">
+</div>
+
+## 시연 영상
+
+https://github.com/user-attachments/assets/0264e4d9-6ad8-4c66-8b4c-e4b619538f37
+
+## 프로젝트 아키텍쳐
+
+### User Flow
+![User Flow](./assets/readme_02.png)
+
+### 모델 아키텍쳐
+
+<img width="100%" src="./assets/readme_04.png"/>
+
+### 서비스 아키텍쳐
+
+<img width="100%" src="./assets/readme_03.png"/>
+
+
+## Tech Stack
+<p align="left">
+    <strong>Language</strong><br>
+    <img src="https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white" alt="Python" />
+    <br><strong>Client</strong><br>
+    <img src="https://img.shields.io/badge/Streamlit-1.32.0-red?logo=streamlit&logoColor=white" alt="Streamlit" />
+    <img src="https://img.shields.io/badge/Kivy-2.3.0-green?logo=Kivy&logoColor=white" alt="Kivy" />
+    <img src="https://img.shields.io/badge/Material%20Design-2.3.0-blue?logo=material-design&logoColor=white" alt="Material Design" />
+    <br><strong>API Serving</strong><br>
+    <img src="https://img.shields.io/badge/FastAPI-0.115.3-teal?logo=fastapi&logoColor=white" alt="FastAPI" />
+    <img src="https://img.shields.io/badge/Docker-4.34.3-blue?logo=docker&logoColor=white" alt="Docker" />
+    <br><strong>Data & AI Modeling</strong><br>
+    <img src="https://img.shields.io/badge/PyTorch-2.5.1-orange?logo=pytorch&logoColor=white" alt="PyTorch" />
+    <img src="https://img.shields.io/badge/Transformers-4.46.2-yellow?logo=hugging-face&logoColor=white" alt="Transformers" />
+    <img src="https://img.shields.io/badge/NumPy-1.26.4-blue?logo=numpy&logoColor=white" alt="NumPy" />
+    <img src="https://img.shields.io/badge/Pandas-2.2.2-blue?logo=pandas&logoColor=white" alt="Pandas" />
+    <img src="https://img.shields.io/badge/Ultralytics-v11-blueviolet?logo=ultralytics&logoColor=white" alt="Ultralytics" />
+    <img src="https://img.shields.io/badge/OpenCV-4.10.0.84-brightgreen?logo=opencv&logoColor=white" alt="OpenCV" />
+    <img src="https://img.shields.io/badge/Plotly-5.22.0-lightblue?logo=plotly&logoColor=white" alt="Plotly" />
+    <img src="https://img.shields.io/badge/Matplotlib-3.8.4-blue?logo=matplotlib&logoColor=white" alt="Matplotlib" />
+    <img src="https://img.shields.io/badge/Scikit--learn-2.5.3-orange?logo=scikit-learn&logoColor=white" alt="Scikit-learn" />
+    <img src="https://img.shields.io/badge/Weights%20%26%20Biases-yellow?logo=weightsandbiases&logoColor=black" alt="Weights & Biases" />
+    <br><strong>Development Tools</strong><br>
+    <img src="https://img.shields.io/badge/VS%20Code-blue?logo=visual-studio-code&logoColor=white" alt="VS Code" />
+    <img src="https://img.shields.io/badge/Google%20Colab-orange?logo=google-colab&logoColor=white" alt="Google Colab" />
+    <img src="https://img.shields.io/badge/Kaggle-blue?logo=kaggle&logoColor=white" alt="Kaggle" />
+    <img src="https://img.shields.io/badge/Anaconda-3.8.0-green?logo=anaconda&logoColor=white" alt="Anaconda" />
+    <br><strong>Tools</strong><br>
+    <img src="https://img.shields.io/badge/Notion-black?logo=notion&logoColor=white" alt="Notion" />
+    <img src="https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white" alt="GitHub" />
+    <img src="https://img.shields.io/badge/Google%20Docs-blue?logo=google-docs&logoColor=white" alt="Google Docs" />
+    <br><strong>Hardware/Server</strong><br>
+    <img src="https://img.shields.io/badge/Windows%2011-blue?logo=windows&logoColor=white" alt="Windows 11" />
+    <img src="https://img.shields.io/badge/macOS-black?logo=apple&logoColor=white" alt="macOS" />
+    </p>
+
+## 구성원 및 역할
+
+|<img width="300" alt="image" src="https://github-production-user-asset-6210df.s3.amazonaws.com/133944361/384664977-76327e69-84ae-44ac-9650-869d579d6ad5.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241110%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241110T061732Z&X-Amz-Expires=300&X-Amz-Signature=ab6e5a7713a1e34c1956e909c265815e0159af7ae70a310f3945b56608ea6d89&X-Amz-SignedHeaders=host"> | <img width="300" alt="image" src="https://github-production-user-asset-6210df.s3.amazonaws.com/133944361/384665057-8c78005a-5153-4c6a-a402-a6854e2f3269.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241110%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241110T062000Z&X-Amz-Expires=300&X-Amz-Signature=04f7d08a612deb3786d7058bba818ab42277f8378af75be0bae619f1ab8fc0cb&X-Amz-SignedHeaders=host"> |<img width="300" alt="image" src="https://github-production-user-asset-6210df.s3.amazonaws.com/133944361/384664776-124df554-9ace-4277-9686-5c1a0bbade7c.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241110%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241110T061626Z&X-Amz-Expires=300&X-Amz-Signature=b8a5be50d02b55056eba3dea0e51ab6c00813e76bad9bb28b3d862481f376230&X-Amz-SignedHeaders=host">| <img width="300" alt="image" src="https://github-production-user-asset-6210df.s3.amazonaws.com/133944361/384665020-07b0d0c9-7953-46be-9de6-42d98d26b57f.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241110%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241110T061850Z&X-Amz-Expires=300&X-Amz-Signature=1dfd712f2e6c329fffa4b988a78291f185700ce561a629fcda502297774b5ed8&X-Amz-SignedHeaders=host"> |
+| :-------------------------------------: | :-----------------------------------------: | :-------------------------------------------: | :---------------------------------: | 
+|  [박성재](https://github.com/SeongjaeP)   |   [백승제](https://github.com/bsj0530)    |    [이승준](https://github.com/llseungjun)    | [추희정](https://github.com/heejungdev00)  |  
+|<p align="center">**Modeling**<br><br>YOLO<br>Clip <br>ClipCap</p> |<p align="center">**Frontend**<br>kivy<br> <br>**Modeling**<br>YOLO</p>| **Project Manager** |<p align="center">**Backend**<br>FastAPI<br><br>**Modeling**<br>YOLO</p> |
+
+
+## Further Reading
+- [발표 자료](<./assets/final_pt.pdf>)
+
 
 ## Ground Rule
 ### 1. 일반 지침
