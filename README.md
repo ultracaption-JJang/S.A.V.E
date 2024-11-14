@@ -16,10 +16,9 @@
 사용자 앞에 나타나는 다양한 객체에 대해 탐지하고, 프레임에 새로운 객체가 탐지되면 상황을 음성으로 설명해줍니다.
 
 <div align="center">
-<img width="24%" src="./assets/example1.png">
-<img width="24%" src="/assets/example2.png">
-<img width="24%" src="/assets/example3.png">
-<img width="24%" src="/assets/example4.png">
+<img width="31%" src="./assets/prototype_01.png">
+<img width="32%" src="./assets/prototype_02.png">
+<img width="32%" src="./assets/prototype_03.png">
 </div>
 
 ## 시연 영상
